@@ -10,21 +10,27 @@ Then run script to generate SQL statements to create data: node mkdata.js
 
 const Chance = require("chance");
 const chance = new Chance();
-const print = console.log;
+const println = console.log;
 
 const createTable = `CREATE TABLE customers (
-	email varchar NULL,
+  id SERIAL PRIMARY KEY,
+  uuid UUID DEFAULT gen_random_uuid() NOT NULL,
+  email varchar NULL,
   firstname varchar NULL,
-	lastname varchar NULL,
-	dob date NULL,
-	balance decimal NULL,
-	state varchar NULL,
-	postcode varchar NULL
+  lastname varchar NULL,
+  dob date NULL,
+  balance decimal NULL,
+  state varchar NULL,
+postcode varchar NULL
 );`;
 
-const ccTemplate = `INSERT INTO customers (email, firstname, lastname, dob, balance, state, postcode) VALUES`;
+const ccTemplate = `INSERT INTO customers (email, firstname, lastname, dob, balance, state, postcode) VALUES `;
+const MAX_LINES = 10000;
+
 const createCustomers = () => {
-  for (var i = 0; i < 1000; i++) {
+  println(ccTemplate);
+
+  for (var i = 0; i < MAX_LINES; i++) {
     const firstname = chance.first({ nationality: "en" });
     const lastname = chance.last({ nationality: "en" });
     const email = `${firstname}.${lastname}@example.com`.replace(" ", "_");
@@ -33,14 +39,13 @@ const createCustomers = () => {
     state = chance.state();
     postcode = chance.postcode();
 
-    print(
-      `${ccTemplate} ('${email}', '${firstname}', '${lastname}', '${dob}', ${balance}, '${state}', '${postcode}');`
-    );
+    const eol = i===MAX_LINES-1 ? ';' : ',' 
+    println(`('${email}', '${firstname}', '${lastname}', '${dob}', ${balance}, '${state}', '${postcode}')${eol}`);
   }
 };
 
 const main = () => {
-  print(createTable);
+  println(createTable);
   createCustomers();
 };
 
